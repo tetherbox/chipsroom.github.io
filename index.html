@@ -245,35 +245,36 @@
         const USERNAME_LIMIT = 20; // Limit for username length
         const MESSAGE_LIMIT = 200; // Limit for message length
 
-        // Join chat
-        setUsernameBtn.addEventListener('click', () => {
-            username = usernameInput.value.trim();
-            if (username && username.length <= USERNAME_LIMIT) {
-                saveUsername(username);
-                chatSection.style.display = 'flex';
-                document.getElementById('login-section').style.display = 'none';
-                sidebar.style.display = 'flex'; // Show sidebar after logging in
-            } else {
-                alert(Username must be less than or equal to ${USERNAME_LIMIT} characters.);
-            }
-        });
+// Join chat
+setUsernameBtn.addEventListener('click', () => {
+    username = usernameInput.value.trim();
+    if (username && username.length <= USERNAME_LIMIT) {
+        saveUsername(username);
+        chatSection.style.display = 'flex';
+        document.getElementById('login-section').style.display = 'none';
+        sidebar.style.display = 'flex'; // Show sidebar after logging in
+    } else {
+        alert(`Username must be less than or equal to ${USERNAME_LIMIT} characters.`);
+    }
+});
 
-        // Send message
-        sendMessageBtn.addEventListener('click', () => {
-            const message = messageInput.value.trim();
-            if (message && message.length <= MESSAGE_LIMIT) {
-                const chatItemRef = database.ref('chat').push();
-                chatItemRef.set({
-                    username: username,
-                    message: message,
-                    timestamp: new Date().toISOString()
-                });
-                messageInput.value = '';
-                chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom
-            } else {
-                alert(Message must be less than or equal to ${MESSAGE_LIMIT} characters.);
-            }
+// Send message
+sendMessageBtn.addEventListener('click', () => {
+    const message = messageInput.value.trim();
+    if (message && message.length <= MESSAGE_LIMIT) {
+        const chatItemRef = database.ref('chat').push();
+        chatItemRef.set({
+            username: username,
+            message: message,
+            timestamp: new Date().toISOString()
         });
+        messageInput.value = '';
+        chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom
+    } else {
+        alert(`Message must be less than or equal to ${MESSAGE_LIMIT} characters.`);
+    }
+});
+
 
 // Load chat messages
 function loadChat() {
