@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderator Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #1a1d21;
+            color: #fff;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #mod-panel {
+            background-color: #2f3136;
+            border-radius: 8px;
+            width: 500px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            max-height: 80vh;
+        }
+
+        h2, h3 {
+            color: #f1f1f1;
+            text-align: center;
+        }
+
+        .action-section {
+            margin-bottom: 20px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+        }
+
+        input {
+            background-color: #40444b;
+            color: #fff;
+        }
+
+        button {
+            background-color: #7289da;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #5b6eae;
+        }
+
+        .kick-btn {
+            background-color: #ff4757;
+        }
+
+        .kick-btn:hover {
+            background-color: #ff6b81;
+        }
+
+        .user-item {
+            background-color: #40444b;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-item:hover {
+            background-color: #7289da;
+        }
+
+        .user-name {
+            color: #fff;
+        }
+
+        #force-message-btn:hover {
+            background-color: #5b6eae;
+        }
+
+        #delete-all-messages-btn {
+            background-color: #ff4757;
+            transition: background-color 0.3s;
+        }
+
+        #delete-all-messages-btn:hover {
+            background-color: #ff6b81;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mod-panel">
+        <h2>Moderator Panel</h2>
+
+        <!-- Create User -->
+        <div class="action-section">
+            <h3>Create User</h3>
+            <input type="text" id="create-user-input" placeholder="Enter username">
+            <button id="create-user-btn">Create User</button>
+        </div>
+
+        <!-- Online Users -->
+        <div class="action-section">
+            <h3>Online Users</h3>
+            <div id="online-users">Fetching users...</div>
+        </div>
+
+        <!-- Kick User -->
+        <div class="action-section">
+            <h3>Kick User</h3>
+            <input type="text" id="kick-user-input" placeholder="Enter username to kick">
+            <button class="kick-btn" id="kick-user-btn">Kick User</button>
+        </div>
+
+        <!-- Make User Send Message -->
+        <div class="action-section">
+            <h3>Make User Send Message</h3>
+            <input type="text" id="force-message-username" placeholder="Enter username">
+            <input type="text" id="force-message-text" placeholder="Enter message">
+            <button id="force-message-btn">Force Message</button>
+        </div>
+
+        <!-- Delete All Messages -->
+        <div class="action-section">
+            <button id="delete-all-messages-btn">Delete All Messages</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAy6sKungTBVT0MOP31pxN5pjnqIDxbXA8",
+            authDomain: "hillflow-music.firebaseapp.com",
+            projectId: "hillflow-music",
+            storageBucket: "hillflow-music.appspot.com",
+            messagingSenderId: "964951454773",
+            appId: "1:964951454773:web:235edd556180b1dfa2ed7c",
+            measurementId: "G-STDCZH5DYK",
+            databaseURL: "https://hillflow-music-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // DOM Elements
+        const createUserInput = document.getElementById('create-user-input');
+        const createUserBtn = document.getElementById('create-user-btn');
+        const kickUserInput = document.getElementById('kick-user-input');
+        const kickUserBtn = document.getElementById('kick-user-btn');
+        const forceMessageUsername = document.getElementById('force-message-username');
+        const forceMessageText = document.getElementById('force-message-text');
+        const forceMessageBtn = document.getElementById('force-message-btn');
+        const deleteAllMessagesBtn = document.getElementById('delete-all-messages-btn');
+        const onlineUsers = document.getElementById('online-users');
+
+        let kickedUsers = {}; // Store kicked users
+
+        // Create User
+        createUserBtn.addEventListener('click', () => {
+            const username = createUserInput.value.trim();
+            if (username) {
+                const userRef = database.ref('users').push();
+                userRef.set({
+                    username: username,
+                });
+                alert(`${username} has been created.`);
+                createUserInput.value = '';
+            } else {
+                alert("Please enter a valid username.");
+            }
+        });
+
+        // Load Online Users
+        function loadOnlineUsers() {
+            database.ref('users').on('value', (snapshot) => {
+                const users = snapshot.val();
+                onlineUsers.innerHTML = ''; // Clear previous users
+                for (let key in users) {
+                    const user = users[key];
+                    if (!kickedUsers[user.username]) { // Don't display kicked users
+                        const userElement = document.createElement('div');
+                        userElement.classList.add('user-item');
+                        userElement.innerHTML = `<span class="user-name">${user.username}</span>`;
+                        onlineUsers.appendChild(userElement);
+                    }
+                }
+            });
+        }
+
+        // Kick User
+        kickUserBtn.addEventListener('click', () => {
+            const username = kickUserInput.value.trim();
+            if (username) {
+                database.ref('users').once('value', (snapshot) => {
+                    const users = snapshot.val();
+                    for (let key in users) {
+                        if (users[key].username === username) {
+                            database.ref('users/' + key).remove(); // Remove user
+                            kickedUsers[username] = true; // Mark user as kicked
+                            alert(`${username} has been kicked.`);
+                            return;
+                        }
+                    }
+                    alert(`User ${username} not found.`);
+                });
+            } else {
+                alert("Please enter a valid username.");
+            }
+        });
+
+        // Make User Send Message
+        forceMessageBtn.addEventListener('click', () => {
+            const username = forceMessageUsername.value.trim();
+            const message = forceMessageText.value.trim();
+
+            if (username && message) {
+                database.ref('users').once('value', (snapshot) => {
+                    const users = snapshot.val();
+                    for (let key in users) {
+                        if (users[key].username === username) {
+                            const chatItemRef = database.ref('chat').push();
+                            chatItemRef.set({
+                                username: username,
+                                message: message,
+                                timestamp: new Date().toISOString()
+                            });
+                            alert(`${username} sent the message: "${message}"`);
+                            return;
+                        }
+                    }
+                    alert(`User ${username} not found.`);
+                });
+            } else {
+                alert("Please enter both a username and a message.");
+            }
+        });
+
+        // Delete All Messages
+        deleteAllMessagesBtn.addEventListener('click', () => {
+            if (confirm("Are you sure you want to delete all messages? This action cannot be undone.")) {
+                database.ref('chat').remove();
+                alert("All messages have been deleted.");
+            }
+        });
+
+        // Redirect kicked users
+        setInterval(() => {
+            database.ref('users').once('value', (snapshot) => {
+                const users = snapshot.val();
+                for (let username in kickedUsers) {
+                    if (kickedUsers[username]) {
+                        if (!users || !Object.values(users).some(user => user.username === username)) {
+                            alert("You have been kicked from the chat.");
+                            window.location.href = "https://google.com"; // Replace with desired redirect URL
+                        }
+                    }
+                }
+            });
+        }, 5000); // Check every 5 seconds
+
+        // Initialize
+        loadOnlineUsers();
+    </script>
+</body>
+
+</html>
