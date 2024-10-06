@@ -10,7 +10,7 @@
         body {
             font-family: 'Roboto', sans-serif;
             margin: 0;
-            background-color: #36393f;
+            background-color: #2c2f33;
             color: #dcddde;
             display: flex;
             height: 100vh;
@@ -19,12 +19,13 @@
 
         #sidebar {
             width: 250px;
-            background-color: #2f3136;
+            background-color: #23272a;
             padding: 20px;
             border-right: 1px solid #202225;
             overflow-y: auto;
             display: none; /* Initially hidden */
             flex-direction: column;
+            transition: width 0.3s ease;
         }
 
         #sidebar h3 {
@@ -37,21 +38,22 @@
             padding: 10px;
             border-radius: 5px;
             background-color: #40444b;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
             cursor: pointer;
         }
 
         .user:hover {
             background-color: #5b6eae;
+            transform: scale(1.05);
         }
 
         #chat-container {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: #36393f;
-            border-radius: 0;
+            background-color: #2c2f33;
             overflow: hidden;
+            transition: background-color 0.3s;
         }
 
         #login-section {
@@ -60,6 +62,12 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         #login-section input {
@@ -88,19 +96,21 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
         }
 
         #login-section button:hover {
             background-color: #5b6eae;
+            transform: scale(1.05);
         }
 
         #chat-section {
             flex: 1;
-            display: flex;
+            display: none;
             flex-direction: column;
             padding: 20px;
             overflow: hidden;
+            animation: fadeIn 0.5s ease;
         }
 
         #chat-display {
@@ -122,6 +132,7 @@
             max-width: 70%;
             position: relative;
             word-wrap: break-word; /* Allow long words to break */
+            transition: background-color 0.3s;
         }
 
         .chat-item strong {
@@ -132,7 +143,7 @@
             display: flex;
             align-items: center;
             padding: 10px;
-            background-color: #2f3136;
+            background-color: #23272a;
             border-top: 1px solid #202225; /* Top border */
         }
 
@@ -160,11 +171,12 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
         }
 
         #send-message-btn:hover {
             background-color: #5b6eae;
+            transform: scale(1.05);
         }
 
         /* Clear Messages Button */
@@ -177,10 +189,12 @@
             cursor: pointer;
             margin-top: 10px;
             display: none; /* Hidden initially */
+            transition: background-color 0.3s, transform 0.2s;
         }
 
         #clear-messages-btn:hover {
             background-color: #ff6b81;
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -200,7 +214,7 @@
         </div>
 
         <!-- Chat Section -->
-        <div id="chat-section" style="display: none;">
+        <div id="chat-section">
             <div id="chat-display"></div>
             <div id="message-container">
                 <input type="text" id="message-input" placeholder="Type your message..." required>
@@ -275,27 +289,27 @@
             }
         });
 
-// Load chat messages
-function loadChat() {
-    database.ref('chat').on('value', (snapshot) => {
-        const chats = snapshot.val();
-        chatDisplay.innerHTML = ''; // Clear previous messages
-        for (let key in chats) {
-            const chatItem = chats[key];
-            const chatElement = document.createElement('div');
-            chatElement.classList.add('chat-item');
-            chatElement.innerHTML = `<strong>${chatItem.username}</strong>: ${chatItem.message}`;
-            chatDisplay.appendChild(chatElement);
-        }
-        chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to the bottom
+        // Load chat messages
+        function loadChat() {
+            database.ref('chat').on('value', (snapshot) => {
+                const chats = snapshot.val();
+                chatDisplay.innerHTML = ''; // Clear previous messages
+                for (let key in chats) {
+                    const chatItem = chats[key];
+                    const chatElement = document.createElement('div');
+                    chatElement.classList.add('chat-item');
+                    chatElement.innerHTML = `<strong>${chatItem.username}</strong>: ${chatItem.message}`;
+                    chatDisplay.appendChild(chatElement);
+                }
+                chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to the bottom
 
-        // Set a timer to clear messages after 10 minutes (600,000 milliseconds)
-        setTimeout(() => {
-            database.ref('chat').remove(); // Clear all chat messages
-            chatDisplay.innerHTML = ''; // Clear chat display
-        }, 600000); // 10 minutes
-    });
-}
+                // Set a timer to clear messages after 10 minutes (600,000 milliseconds)
+                setTimeout(() => {
+                    database.ref('chat').remove(); // Clear all chat messages
+                    chatDisplay.innerHTML = ''; // Clear chat display
+                }, 600000); // 10 minutes
+            });
+        }
 
         // Save username and update online users
         function saveUsername(username) {
