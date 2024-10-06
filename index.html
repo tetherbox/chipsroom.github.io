@@ -7,7 +7,181 @@
     <title>Chat Room</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* (All existing CSS styles here) */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #36393f;
+            color: #dcddde;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #sidebar {
+            width: 250px;
+            background-color: #2f3136;
+            padding: 20px;
+            border-right: 1px solid #202225;
+            overflow-y: auto;
+            display: none; /* Initially hidden */
+            flex-direction: column;
+        }
+
+        #sidebar h3 {
+            color: #ffffff;
+            margin-top: 0;
+        }
+
+        .user {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #40444b;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .user:hover {
+            background-color: #5b6eae;
+        }
+
+        #chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #36393f;
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        #login-section {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #login-section input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            background-color: #40444b;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        #login-section input:focus {
+            outline: none;
+            background-color: #50555b;
+        }
+
+        #login-section button {
+            width: 100%;
+            padding: 15px;
+            background-color: #7289da;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        #login-section button:hover {
+            background-color: #5b6eae;
+        }
+
+        #chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        #chat-display {
+            flex: 1;
+            overflow-y: auto; /* Enable scrolling */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align messages at the start */
+            padding-right: 10px; /* Add space for scrollbar */
+            margin-bottom: 10px; /* Space between messages and input */
+        }
+
+        .chat-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #40444b;
+            max-width: 70%;
+            position: relative;
+            word-wrap: break-word; /* Allow long words to break */
+        }
+
+        .chat-item strong {
+            color: #7289da;
+        }
+
+        #message-container {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #2f3136;
+            border-top: 1px solid #202225; /* Top border */
+        }
+
+        #message-input {
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            width: calc(100% - 130px);
+            background-color: #40444b;
+            color: white;
+            margin-right: 10px; /* Space between input and button */
+            transition: background-color 0.3s;
+            resize: none; /* Prevent resizing */
+        }
+
+        #message-input:focus {
+            outline: none;
+            background-color: #50555b;
+        }
+
+        #send-message-btn {
+            padding: 15px;
+            background-color: #7289da;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #send-message-btn:hover {
+            background-color: #5b6eae;
+        }
+
+        /* Clear Messages Button */
+        #clear-messages-btn {
+            padding: 10px;
+            background-color: #ff4757;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none; /* Hidden initially */
+        }
+
+        #clear-messages-btn:hover {
+            background-color: #ff6b81;
+        }
     </style>
 </head>
 
@@ -42,7 +216,14 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            /* (Firebase config here) */
+            apiKey: "AIzaSyAy6sKungTBVT0MOP31pxN5pjnqIDxbXA8",
+            authDomain: "hillflow-music.firebaseapp.com",
+            projectId: "hillflow-music",
+            storageBucket: "hillflow-music.appspot.com",
+            messagingSenderId: "964951454773",
+            appId: "1:964951454773:web:235edd556180b1dfa2ed7c",
+            measurementId: "G-STDCZH5DYK",
+            databaseURL: "https://hillflow-music-default-rtdb.firebaseio.com"
         };
 
         // Initialize Firebase
@@ -58,13 +239,12 @@
         const sendMessageBtn = document.getElementById('send-message-btn');
         const onlineList = document.getElementById('online-list');
         const clearMessagesBtn = document.getElementById('clear-messages-btn');
-        const sidebar = document.getElementById('sidebar');
+        const sidebar = document.getElementById('sidebar'); // Get sidebar
 
         let username = '';
         let userRefKey = '';
-        let isMod = false;
-        const USERNAME_LIMIT = 20;
-        const MESSAGE_LIMIT = 200;
+        const USERNAME_LIMIT = 20; // Limit for username length
+        const MESSAGE_LIMIT = 200; // Limit for message length
 
         // Join chat
         setUsernameBtn.addEventListener('click', () => {
@@ -73,9 +253,9 @@
                 saveUsername(username);
                 chatSection.style.display = 'flex';
                 document.getElementById('login-section').style.display = 'none';
-                sidebar.style.display = 'flex';
+                sidebar.style.display = 'flex'; // Show sidebar after logging in
             } else {
-                alert(`Username must be less than or equal to ${USERNAME_LIMIT} characters.`);
+                alert(Username must be less than or equal to ${USERNAME_LIMIT} characters.);
             }
         });
 
@@ -85,40 +265,46 @@
             if (message && message.length <= MESSAGE_LIMIT) {
                 const chatItemRef = database.ref('chat').push();
                 chatItemRef.set({
-                    username: isMod ? 'MOD ' + username : username,
+                    username: username,
                     message: message,
                     timestamp: new Date().toISOString()
                 });
                 messageInput.value = '';
-                chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom
             } else {
-                alert(`Message must be less than or equal to ${MESSAGE_LIMIT} characters.`);
+                alert(Message must be less than or equal to ${MESSAGE_LIMIT} characters.);
             }
         });
 
-        // Load chat messages
-        function loadChat() {
-            database.ref('chat').on('value', (snapshot) => {
-                const chats = snapshot.val();
-                chatDisplay.innerHTML = '';
-                for (let key in chats) {
-                    const chatItem = chats[key];
-                    const chatElement = document.createElement('div');
-                    chatElement.classList.add('chat-item');
-                    chatElement.innerHTML = `<strong>${chatItem.username}</strong>: ${chatItem.message}`;
-                    chatDisplay.appendChild(chatElement);
-                }
-                chatDisplay.scrollTop = chatDisplay.scrollHeight;
-            });
+// Load chat messages
+function loadChat() {
+    database.ref('chat').on('value', (snapshot) => {
+        const chats = snapshot.val();
+        chatDisplay.innerHTML = ''; // Clear previous messages
+        for (let key in chats) {
+            const chatItem = chats[key];
+            const chatElement = document.createElement('div');
+            chatElement.classList.add('chat-item');
+            chatElement.innerHTML = <strong>${chatItem.username}</strong>: ${chatItem.message};
+            chatDisplay.appendChild(chatElement);
         }
+        chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to the bottom
+
+        // Set a timer to clear messages after 10 minutes (600,000 milliseconds)
+        setTimeout(() => {
+            database.ref('chat').remove(); // Clear all chat messages
+            chatDisplay.innerHTML = ''; // Clear chat display
+        }, 600000); // 10 minutes
+    });
+}
 
         // Save username and update online users
         function saveUsername(username) {
-            userRefKey = database.ref('users').push().key;
+            userRefKey = database.ref('users').push().key; // Generate unique key for user
             database.ref('users/' + userRefKey).set({
                 username: username,
             });
-            database.ref('users/' + userRefKey).onDisconnect().remove();
+            database.ref('users/' + userRefKey).onDisconnect().remove(); // Remove user on disconnect
             loadOnlineUsers();
             loadChat();
         }
@@ -127,48 +313,25 @@
         function loadOnlineUsers() {
             database.ref('users').on('value', (snapshot) => {
                 const users = snapshot.val();
-                onlineList.innerHTML = '';
+                onlineList.innerHTML = ''; // Clear previous online users
                 for (let key in users) {
                     const user = users[key];
                     const userElement = document.createElement('div');
                     userElement.classList.add('user');
                     userElement.textContent = user.username;
-                    userElement.setAttribute('data-user-key', key);
-
-                    // If mod, add control buttons
-                    if (isMod) {
-                        const kickBtn = document.createElement('button');
-                        kickBtn.textContent = 'Kick';
-                        kickBtn.onclick = () => kickUser(key);
-                        userElement.appendChild(kickBtn);
-                    }
-
                     onlineList.appendChild(userElement);
                 }
             });
         }
 
-        // Keyboard shortcut to become mod (Shift + Alt + 7)
-        document.addEventListener('keydown', (event) => {
-            if (event.shiftKey && event.altKey && event.code === 'Digit7') {
-                toggleMod();
-            }
+        // Clear chat messages
+        clearMessagesBtn.addEventListener('click', () => {
+            database.ref('chat').remove(); // Remove all chat messages
+            chatDisplay.innerHTML = ''; // Clear chat display
         });
 
-        // Toggle mod status
-        function toggleMod() {
-            isMod = !isMod;
-            alert(isMod ? 'You are now a mod.' : 'Mod privileges removed.');
-            loadOnlineUsers();
-        }
-
-        // Kick user function
-        function kickUser(userKey) {
-            database.ref('users/' + userKey).remove();
-        }
-
         // Initialize
-        loadChat();
+        loadChat(); // Start loading chat messages
     </script>
 </body>
 
