@@ -238,101 +238,101 @@
         const sendMessageBtn = document.getElementById('send-message-btn');
         const onlineList = document.getElementById('online-list');
         const clearMessagesBtn = document.getElementById('clear-messages-btn');
-        const sidebar = document.getElementById('sidebar'); // Get sidebar
+        const sidebar = document.getElementById('sidebar');
 
         let username = '';
         let userRefKey = '';
         const USERNAME_LIMIT = 20; // Limit for username length
         const MESSAGE_LIMIT = 200; // Limit for message length
 
-// Join chat
-setUsernameBtn.addEventListener('click', () => {
-    username = usernameInput.value.trim();
-    if (username && username.length <= USERNAME_LIMIT) {
-        saveUsername(username);
-        chatSection.style.display = 'flex';
-        document.getElementById('login-section').style.display = 'none';
-        sidebar.style.display = 'flex'; // Show sidebar after logging in
-    } else {
-        alert(`Username must be less than or equal to ${USERNAME_LIMIT} characters.`);
-    }
-});
-
-// Send message
-sendMessageBtn.addEventListener('click', () => {
-    const message = messageInput.value.trim();
-    if (message && message.length <= MESSAGE_LIMIT) {
-        const chatItemRef = database.ref('chat').push();
-        chatItemRef.set({
-            username: username,
-            message: message,
-            timestamp: new Date().toISOString()
-        });
-        messageInput.value = '';
-        chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom
-    } else {
-        alert(`Message must be less than or equal to ${MESSAGE_LIMIT} characters.`);
-    }
-});
-
-
-// Load chat messages
-function loadChat() {
-    database.ref('chat').on('value', (snapshot) => {
-        const chats = snapshot.val();
-        chatDisplay.innerHTML = ''; // Clear previous messages
-        for (let key in chats) {
-            const chatItem = chats[key];
-            const chatElement = document.createElement('div');
-            chatElement.classList.add('chat-item');
-            chatElement.innerHTML = <strong>${chatItem.username}</strong>: ${chatItem.message};
-            chatDisplay.appendChild(chatElement);
-        }
-        chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to the bottom
-
-        // Set a timer to clear messages after 10 minutes (600,000 milliseconds)
-        setTimeout(() => {
-            database.ref('chat').remove(); // Clear all chat messages
-            chatDisplay.innerHTML = ''; // Clear chat display
-        }, 600000); // 10 minutes
-    });
-}
-
-        // Save username and update online users
-        function saveUsername(username) {
-            userRefKey = database.ref('users').push().key; // Generate unique key for user
-            database.ref('users/' + userRefKey).set({
-                username: username,
-            });
-            database.ref('users/' + userRefKey).onDisconnect().remove(); // Remove user on disconnect
-            loadOnlineUsers();
-            loadChat();
-        }
-
-        // Load online users
-        function loadOnlineUsers() {
-            database.ref('users').on('value', (snapshot) => {
-                const users = snapshot.val();
-                onlineList.innerHTML = ''; // Clear previous online users
-                for (let key in users) {
-                    const user = users[key];
-                    const userElement = document.createElement('div');
-                    userElement.classList.add('user');
-                    userElement.textContent = user.username;
-                    onlineList.appendChild(userElement);
+        document.addEventListener("DOMContentLoaded", function() {
+            // Join chat
+            setUsernameBtn.addEventListener('click', () => {
+                username = usernameInput.value.trim();
+                if (username && username.length <= USERNAME_LIMIT) {
+                    saveUsername(username);
+                    chatSection.style.display = 'flex';
+                    document.getElementById('login-section').style.display = 'none';
+                    sidebar.style.display = 'flex'; // Show sidebar after logging in
+                } else {
+                    alert(`Username must be less than or equal to ${USERNAME_LIMIT} characters.`);
                 }
             });
-        }
 
-        // Clear chat messages
-        clearMessagesBtn.addEventListener('click', () => {
-            database.ref('chat').remove(); // Remove all chat messages
-            chatDisplay.innerHTML = ''; // Clear chat display
+            // Send message
+            sendMessageBtn.addEventListener('click', () => {
+                const message = messageInput.value.trim();
+                if (message && message.length <= MESSAGE_LIMIT) {
+                    const chatItemRef = database.ref('chat').push();
+                    chatItemRef.set({
+                        username: username,
+                        message: message,
+                        timestamp: new Date().toISOString()
+                    });
+                    messageInput.value = '';
+                    chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom
+                } else {
+                    alert(`Message must be less than or equal to ${MESSAGE_LIMIT} characters.`);
+                }
+            });
+
+            // Load chat messages
+            function loadChat() {
+                database.ref('chat').on('value', (snapshot) => {
+                    const chats = snapshot.val();
+                    chatDisplay.innerHTML = ''; // Clear previous messages
+                    for (let key in chats) {
+                        const chatItem = chats[key];
+                        const chatElement = document.createElement('div');
+                        chatElement.classList.add('chat-item');
+                        chatElement.innerHTML = `<strong>${chatItem.username}</strong>: ${chatItem.message}`;
+                        chatDisplay.appendChild(chatElement);
+                    }
+                    chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to the bottom
+
+                    // Set a timer to clear messages after 10 minutes (600,000 milliseconds)
+                    setTimeout(() => {
+                        database.ref('chat').remove(); // Clear all chat messages
+                        chatDisplay.innerHTML = ''; // Clear chat display
+                    }, 600000); // 10 minutes
+                });
+            }
+
+            // Save username and update online users
+            function saveUsername(username) {
+                userRefKey = database.ref('users').push().key; // Generate unique key for user
+                database.ref('users/' + userRefKey).set({
+                    username: username,
+                });
+                database.ref('users/' + userRefKey).onDisconnect().remove(); // Remove user on disconnect
+                loadOnlineUsers();
+                loadChat();
+            }
+
+            // Load online users
+            function loadOnlineUsers() {
+                database.ref('users').on('value', (snapshot) => {
+                    const users = snapshot.val();
+                    onlineList.innerHTML = ''; // Clear previous online users
+                    for (let key in users) {
+                        const user = users[key];
+                        const userElement = document.createElement('div');
+                        userElement.classList.add('user');
+                        userElement.textContent = user.username;
+                        onlineList.appendChild(userElement);
+                    }
+                });
+            }
+
+            // Clear chat messages
+            clearMessagesBtn.addEventListener('click', () => {
+                database.ref('chat').remove(); // Remove all chat messages
+                chatDisplay.innerHTML = ''; // Clear chat display
+            });
+
+            // Initialize
+            loadChat(); // Start loading chat messages
         });
-
-        // Initialize
-        loadChat(); // Start loading chat messages
     </script>
 </body>
-
 </html>
