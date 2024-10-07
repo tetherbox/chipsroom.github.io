@@ -308,12 +308,6 @@
                 }
                 // Scroll to the bottom after loading messages
                 chatDisplay.scrollTop = chatDisplay.scrollHeight;
-
-                // Set a timer to clear messages after 10 minutes (600,000 milliseconds)
-                setTimeout(() => {
-                    database.ref("chat").remove(); // Clear all chat messages
-                    chatDisplay.innerHTML = ""; // Clear chat display
-                }, 600000); // 10 minutes
             });
         }
 
