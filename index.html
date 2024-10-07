@@ -330,25 +330,26 @@
 
               // Load chat messages
               function loadChat() {
-                  database.ref('chat').on('value', (snapshot) => {
-                      const chats = snapshot.val();
-                      chatDisplay.innerHTML = ''; // Clear previous messages
-                      for (let key in chats) {
-                          const chatItem = chats[key];
-                          const chatElement = document.createElement('div');
-                          chatElement.classList.add('chat-item');
-                          chatElement.innerHTML = `<strong>${chatItem.username}</strong>: ${chatItem.message}`;
-                          chatDisplay.appendChild(chatElement);
-                      }
-                      chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to the bottom
+    database.ref('chat').on('value', (snapshot) => {
+        const chats = snapshot.val();
+        chatDisplay.innerHTML = ''; // Clear previous messages
+        for (let key in chats) {
+            const chatItem = chats[key];
+            const chatElement = document.createElement('div');
+            chatElement.classList.add('chat-item');
+            chatElement.innerHTML = `<strong>${chatItem.username}</strong>: ${chatItem.message}`;
+            chatDisplay.appendChild(chatElement);
+        }
+        // Scroll to the bottom after loading messages
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
 
-                      // Set a timer to clear messages after 10 minutes (600,000 milliseconds)
-                      setTimeout(() => {
-                          database.ref('chat').remove(); // Clear all chat messages
-                          chatDisplay.innerHTML = ''; // Clear chat display
-                      }, 600000); // 10 minutes
-                  });
-              }
+        // Set a timer to clear messages after 10 minutes (600,000 milliseconds)
+        setTimeout(() => {
+            database.ref('chat').remove(); // Clear all chat messages
+            chatDisplay.innerHTML = ''; // Clear chat display
+        }, 600000); // 10 minutes
+    });
+}
 
               // Save username and update online users
               function saveUsername(username) {
