@@ -194,7 +194,7 @@
 
         // Load Online Users
         function loadOnlineUsers() {
-            database.ref('users').on('value', (snapshot) => {
+            database.ref('onlineUsers').on('value', (snapshot) => {
                 const users = snapshot.val();
                 onlineUsers.innerHTML = ''; // Clear previous users
                 for (let key in users) {
