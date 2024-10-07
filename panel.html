@@ -181,7 +181,7 @@
         createUserBtn.addEventListener('click', () => {
             const username = createUserInput.value.trim();
             if (username) {
-                const userRef = database.ref('users').push();
+                const userRef = database.ref('onlineUsers').push();
                 userRef.set({
                     username: username,
                 });
@@ -213,7 +213,7 @@
         kickUserBtn.addEventListener('click', () => {
             const username = kickUserInput.value.trim();
             if (username) {
-                database.ref('users').once('value', (snapshot) => {
+                database.ref('onlineUsers').once('value', (snapshot) => {
                     const users = snapshot.val();
                     for (let key in users) {
                         if (users[key].username === username) {
@@ -236,7 +236,7 @@
             const message = forceMessageText.value.trim();
 
             if (username && message) {
-                database.ref('users').once('value', (snapshot) => {
+                database.ref('onlineUsers').once('value', (snapshot) => {
                     const users = snapshot.val();
                     for (let key in users) {
                         if (users[key].username === username) {
@@ -267,7 +267,7 @@
 
         // Redirect kicked users
         setInterval(() => {
-            database.ref('users').once('value', (snapshot) => {
+            database.ref('onlineUsers').once('value', (snapshot) => {
                 const users = snapshot.val();
                 for (let username in kickedUsers) {
                     if (kickedUsers[username]) {
