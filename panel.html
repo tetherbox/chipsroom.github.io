@@ -30,7 +30,8 @@
             max-height: 80vh;
         }
 
-        h2, h3 {
+        h2,
+        h3 {
             color: #f1f1f1;
             text-align: center;
         }
@@ -39,7 +40,8 @@
             margin-bottom: 20px;
         }
 
-        input, button {
+        input,
+        button {
             width: 100%;
             padding: 12px;
             margin-top: 10px;
@@ -182,9 +184,7 @@
             const username = createUserInput.value.trim();
             if (username) {
                 const userRef = database.ref('onlineUsers').push();
-                userRef.set({
-                    username: username,
-                });
+                userRef.set({ username: username });
                 alert(`${username} has been created.`);
                 createUserInput.value = '';
             } else {
@@ -215,15 +215,19 @@
             if (username) {
                 database.ref('onlineUsers').once('value', (snapshot) => {
                     const users = snapshot.val();
+                    let userFound = false; // Flag to track if user is found
                     for (let key in users) {
                         if (users[key].username === username) {
-                            database.ref('users/' + key).remove(); // Remove user
+                            database.ref('onlineUsers/' + key).remove(); // Remove user
                             kickedUsers[username] = true; // Mark user as kicked
                             alert(`${username} has been kicked.`);
-                            return;
+                            userFound = true; // Update flag
+                            break;
                         }
                     }
-                    alert(`User ${username} not found.`);
+                    if (!userFound) {
+                        alert(`User ${username} not found.`);
+                    }
                 });
             } else {
                 alert("Please enter a valid username.");
@@ -238,6 +242,7 @@
             if (username && message) {
                 database.ref('onlineUsers').once('value', (snapshot) => {
                     const users = snapshot.val();
+                    let userFound = false; // Flag to track if user is found
                     for (let key in users) {
                         if (users[key].username === username) {
                             const chatItemRef = database.ref('chat').push();
@@ -247,10 +252,13 @@
                                 timestamp: new Date().toISOString()
                             });
                             alert(`${username} sent the message: "${message}"`);
-                            return;
+                            userFound = true; // Update flag
+                            break;
                         }
                     }
-                    alert(`User ${username} not found.`);
+                    if (!userFound) {
+                        alert(`User ${username} not found.`);
+                    }
                 });
             } else {
                 alert("Please enter both a username and a message.");
@@ -269,18 +277,15 @@
         setInterval(() => {
             database.ref('onlineUsers').once('value', (snapshot) => {
                 const users = snapshot.val();
-                for (let username in kickedUsers) {
-                    if (kickedUsers[username]) {
-                        if (!users || !Object.values(users).some(user => user.username === username)) {
-                            alert("You have been kicked from the chat.");
-                            window.location.href = "https://google.com"; // Replace with desired redirect URL
-                        }
+                for (let key in users) {
+                    if (kickedUsers[users[key].username]) {
+                        // Logic to handle kicked user redirection or notification can go here
                     }
                 }
             });
         }, 5000); // Check every 5 seconds
 
-        // Initialize
+        // Load online users on page load
         loadOnlineUsers();
     </script>
 </body>
