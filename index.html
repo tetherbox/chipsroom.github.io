@@ -301,7 +301,7 @@
                     const chatItem = chats[key];
                     const chatElement = document.createElement("div");
                     chatElement.classList.add("chat-item");
-                    chatElement.innerHTML = <strong>${chatItem.username}</strong>: ${chatItem.message};
+                    chatElement.innerHTML = `<strong>${chatItem.username}</strong>: ${chatItem.message}`;
                     chatDisplay.appendChild(chatElement);
                 }
                 // Scroll to the bottom after loading messages
@@ -327,7 +327,7 @@
         // Remove user from online list when leaving
         window.addEventListener("beforeunload", () => {
             if (userRefKey) {
-                database.ref(onlineUsers/${userRefKey}).remove();
+                database.ref(`onlineUsers/${userRefKey}`).remove();
             }
         });
 
