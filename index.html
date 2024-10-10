@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat Room</title>
+    <title>Chip's Room</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
     <style>
         body {
             font-family: "Roboto", sans-serif;
             margin: 0;
-            background-color: #2c2f33;
-            color: #dcddde;
+            background: linear-gradient(135deg, #4a4e69, #22223b);
+            color: #f0f0f0;
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
         #sidebar {
-            width: 250px;
-            background-color: #23272a;
+            width: 300px;
+            background-color: #2b2d42;
             padding: 20px;
             border-right: 1px solid #202225;
             overflow-y: auto;
-            display: none; /* Initially hide the sidebar */
+            display: none;
             flex-direction: column;
             transition: width 0.3s ease;
         }
@@ -30,19 +30,21 @@
         #sidebar h3 {
             color: #ffffff;
             margin-top: 0;
+            font-size: 20px;
         }
 
         .user {
             margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
             background-color: #40444b;
             transition: background-color 0.3s, transform 0.2s;
             cursor: pointer;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .user:hover {
-            background-color: #5b6eae;
+            background-color: #6a86f7;
             transform: scale(1.05);
         }
 
@@ -53,6 +55,9 @@
             background-color: #2c2f33;
             overflow: hidden;
             transition: background-color 0.3s;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            margin: 20px;
         }
 
         #login-section {
@@ -77,7 +82,7 @@
             width: 100%;
             padding: 15px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-bottom: 20px;
             font-size: 16px;
             background-color: #40444b;
@@ -96,7 +101,7 @@
             background-color: #7289da;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s, transform 0.2s;
@@ -129,13 +134,13 @@
 
         .chat-item {
             margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 15px;
+            border-radius: 8px;
             background-color: #40444b;
             max-width: 70%;
-            position: relative;
             word-wrap: break-word;
             transition: background-color 0.3s;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .chat-item strong {
@@ -145,15 +150,16 @@
         #message-container {
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 15px;
             background-color: #23272a;
             border-top: 1px solid #202225;
+            border-radius: 0 0 15px 15px;
         }
 
         #message-input {
             padding: 15px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             width: calc(100% - 130px);
             background-color: #40444b;
             color: white;
@@ -172,7 +178,7 @@
             background-color: #7289da;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
         }
@@ -182,19 +188,21 @@
             transform: scale(1.05);
         }
 
-        #clear-messages-btn {
-            padding: 10px;
+        /* Donate Button */
+        #donate-btn {
+            padding: 12px 15px;
             background-color: #ff4757;
             color: #fff;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
-            display: none;
+            margin-top: 20px;
+            text-align: center;
             transition: background-color 0.3s, transform 0.2s;
+            font-size: 16px;
         }
 
-        #clear-messages-btn:hover {
+        #donate-btn:hover {
             background-color: #ff6b81;
             transform: scale(1.05);
         }
@@ -205,6 +213,7 @@
     <div id="sidebar">
         <h3>Online Users:</h3>
         <div id="online-list">Fetching...</div>
+        <button id="donate-btn">Donate</button> <!-- Donate Button -->
     </div>
     <div id="chat-container">
         <!-- Login Section -->
@@ -330,12 +339,7 @@
                 database.ref(`onlineUsers/${userRefKey}`).remove();
             }
         });
-
-        // Clear chat messages button functionality
-        clearMessagesBtn.addEventListener("click", () => {
-            database.ref("chat").remove(); // Clear all chat messages
-            chatDisplay.innerHTML = ""; // Clear chat display
-        });
     </script>
 </body>
 </html>
+
