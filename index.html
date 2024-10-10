@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -292,18 +292,7 @@
             }
         });
 
-
-        // Send message when pressing "Enter"
-        messageInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                sendMessage();
-            }
-        });
-
-        // Send message when clicking the button
-        sendMessageBtn.addEventListener("click", sendMessage);
-        
-       // Load chat messages
+        // Load chat messages
         function loadChat() {
             database.ref("chat").on("value", (snapshot) => {
                 const chats = snapshot.val();
@@ -350,4 +339,3 @@
     </script>
 </body>
 </html>
-
