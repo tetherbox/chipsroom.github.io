@@ -289,8 +289,8 @@
             }
         });
 
-        // Send message
-        sendMessageBtn.addEventListener("click", () => {
+        // Send message function
+        function sendMessage() {
             const message = messageInput.value.trim();
             if (message && message.length <= MESSAGE_LIMIT) {
                 database.ref("chat").push({
@@ -298,6 +298,17 @@
                     message: message,
                 });
                 messageInput.value = "";
+            }
+        }
+
+        // Send message when button is clicked
+        sendMessageBtn.addEventListener("click", sendMessage);
+
+        // Send message when Enter key is pressed
+        messageInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                sendMessage();
+                event.preventDefault(); // Prevent default behavior (like form submission)
             }
         });
 
@@ -342,4 +353,3 @@
     </script>
 </body>
 </html>
-
