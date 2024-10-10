@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -22,7 +22,7 @@
             padding: 20px;
             border-right: 1px solid #202225;
             overflow-y: auto;
-            display: flex; /* Show the sidebar by default */
+            display: none; /* Initially hide the sidebar */
             flex-direction: column;
             transition: width 0.3s ease;
         }
@@ -190,7 +190,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
-            display: none; /* Hide the button initially */
+            display: none;
             transition: background-color 0.3s, transform 0.2s;
         }
 
@@ -252,7 +252,7 @@
         const messageInput = document.getElementById("message-input");
         const sendMessageBtn = document.getElementById("send-message-btn");
         const onlineList = document.getElementById("online-list");
-        const sidebar = document.getElementById("sidebar");
+        const sidebar = document.getElementById("sidebar"); // Get sidebar
 
         let username = "";
         let userRefKey = "";
@@ -264,7 +264,7 @@
             username = usernameInput.value.trim();
 
             if (username && username.length <= USERNAME_LIMIT) {
-                // Show sidebar and chat section
+                // Show sidebar and chat section, and start loading chat
                 sidebar.style.display = "flex"; // Show sidebar
                 document.getElementById("login-section").style.display = "none";
                 chatSection.style.display = "flex";
@@ -273,7 +273,6 @@
                 // Add user to online list
                 userRefKey = database.ref("onlineUsers").push({
                     username: username,
-                    status: "online", // Add status field
                 }).key;
 
                 // Listen for online users changes
@@ -281,8 +280,8 @@
             }
         });
 
-        // Send message function
-        function sendMessage() {
+        // Send message
+        sendMessageBtn.addEventListener("click", () => {
             const message = messageInput.value.trim();
             if (message && message.length <= MESSAGE_LIMIT) {
                 database.ref("chat").push({
@@ -291,10 +290,20 @@
                 });
                 messageInput.value = "";
             }
-        }
+        });
 
-    
-        // Load chat messages
+
+        // Send message when pressing "Enter"
+        messageInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        // Send message when clicking the button
+        sendMessageBtn.addEventListener("click", sendMessage);
+        
+       // Load chat messages
         function loadChat() {
             database.ref("chat").on("value", (snapshot) => {
                 const chats = snapshot.val();
@@ -303,7 +312,7 @@
                     const chatItem = chats[key];
                     const chatElement = document.createElement("div");
                     chatElement.classList.add("chat-item");
-                    chatElement.innerHTML = `<strong>${chatItem.username}</strong>: ${chatItem.message}`;
+                    chatElement.innerHTML = <strong>${chatItem.username}</strong>: ${chatItem.message};
                     chatDisplay.appendChild(chatElement);
                 }
                 // Scroll to the bottom after loading messages
@@ -320,36 +329,25 @@
                     const userItem = users[key];
                     const userElement = document.createElement("div");
                     userElement.classList.add("user");
-                    userElement.textContent = `${userItem.username} (${userItem.status})`;
+                    userElement.textContent = userItem.username;
                     onlineList.appendChild(userElement);
                 }
             });
         }
 
-        // Mark user as offline when they close the browser or tab
+        // Remove user from online list when leaving
         window.addEventListener("beforeunload", () => {
             if (userRefKey) {
-                // Set the user status to 'offline' in the database
-                database.ref(`onlineUsers/${userRefKey}`).update({
-                    status: 'offline',
-                });
+                database.ref(onlineUsers/${userRefKey}).remove();
             }
         });
 
-        // Also listen for when the user leaves the chat (e.g., browser closed)
-        window.addEventListener("unload", () => {
-            if (userRefKey) {
-                // Remove the user from the online users list
-                database.ref(`onlineUsers/${userRefKey}`).remove();
-            }
+        // Clear chat messages button functionality
+        clearMessagesBtn.addEventListener("click", () => {
+            database.ref("chat").remove(); // Clear all chat messages
+            chatDisplay.innerHTML = ""; // Clear chat display
         });
+    </script>
+</body>
+</html>
 
-        // Send message when pressing "Enter"
-        messageInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                sendMessage();
-            }
-        });
-
-        // Send message when clicking the button
-        sendMessageBtn.addEventListener("click", sendMessage);
