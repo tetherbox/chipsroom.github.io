@@ -1,3 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderator Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles for the whole page */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #1e1f26;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        #mod-panel {
+            background-color: #282a36;
+            border-radius: 12px;
+            width: 500px;
+            padding: 20px 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        h2 {
+            font-size: 24px;
+            text-align: center;
+            color: #f8f8f8;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #3e4052;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #f1f1f1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .action-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #373a48;
+            border-radius: 10px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .action-section:hover {
+            background-color: #434656;
+        }
+
+        input,
+        button,
+        select {
+            width: calc(100% - 30px);
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #5e6272;
+            font-size: 16px;
+            outline: none;
+            background-color: #2b2d3b;
+            color: #f8f8f8;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #7289da;
+        }
+
+        button {
+            background-color: #7289da;
+            border: none;
+            cursor: pointer;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background-color: #5b6eae;
+            transform: translateY(-2px);
+        }
+
+        .kick-btn {
+            background-color: #ff4757;
+        }
+
+        .kick-btn:hover {
+            background-color: #ff6b81;
+        }
+
+        /* User and message displays */
+        .user-item,
+        .message-item {
+            background-color: #40444b;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 6px;
+            color: #f8f8f8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-item:hover,
+        .message-item:hover {
+            background-color: #51545e;
+        }
+
+        /* Search Results */
+        #search-results,
+        #message-history {
+            background-color: #2b2d3b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #b9bbbe;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        /* Delete button for all messages */
+        #delete-all-messages-btn {
+            background-color: #ff4757;
+        }
+
+        #delete-all-messages-btn:hover {
+            background-color: #ff6b81;
+        }
+
+        /* Add visual spacing */
+        .flex-container {
+            display: flex;
+            gap: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mod-panel">
+        <h2>Moderator Panel</h2>
+
+        <!-- Create User Section -->
+        <div class="action-section">
+            <h3>Create User</h3>
+            <input type="text" id="create-user-input" placeholder="Enter username">
+            <button id="create-user-btn">Create User</button>
+            <div class="info-text">Easily add a new user to the chatroom.</div>
+        </div>
+
+        <!-- Online Users Section -->
+        <div class="action-section">
+            <h3>Online Users</h3>
+            <div id="online-users">Loading online users...</div>
+        </div>
+
+        <!-- Kick User Section -->
+        <div class="action-section">
+            <h3>Kick User</h3>
+            <input type="text" id="kick-user-input" placeholder="Enter username to kick">
+            <button class="kick-btn" id="kick-user-btn">Kick User</button>
+            <div class="info-text">Remove a user from the chatroom.</div>
+        </div>
+
+        <!-- Assign User Role Section -->
+        <div class="action-section">
+            <h3>Assign User Role</h3>
+            <div class="flex-container">
+                <input type="text" id="role-username" placeholder="Enter username">
+                <select id="role-select">
+                    <option value="user">User</option>
+                    <option value="moderator">Moderator</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button id="assign-role-btn">Assign Role</button>
+            <div class="info-text">Set the appropriate role for a user.</div>
+        </div>
+
+        <!-- Force User Message Section -->
+        <div class="action-section">
+            <h3>Make User Send Message</h3>
+            <input type="text" id="force-message-username" placeholder="Enter username">
+            <input type="text" id="force-message-text" placeholder="Enter message">
+            <button id="force-message-btn">Force Message</button>
+            <div class="info-text">Force a user to send a specific message.</div>
+        </div>
+
+        <!-- Delete Message Section -->
+        <div class="action-section">
+            <h3>Delete Message</h3>
+            <input type="text" id="delete-message-username" placeholder="Enter username">
+            <input type="text" id="delete-message-text" placeholder="Enter message to delete">
+            <button id="delete-message-btn">Delete Message</button>
+            <div class="info-text">Remove a specific message from the chat.</div>
+        </div>
+
+        <!-- Search Messages Section -->
+        <div class="action-section">
+            <h3>Search Messages</h3>
+            <input type="text" id="search-message-input" placeholder="Search by keyword or username">
+            <button id="search-message-btn">Search</button>
+            <div id="search-results"></div>
+        </div>
+
+        <!-- Message History Section -->
+        <div class="action-section">
+            <h3>Message History</h3>
+            <div id="message-history">Loading message history...</div>
+        </div>
+
+        <!-- Delete All Messages Section -->
+        <div class="action-section">
+            <button id="delete-all-messages-btn">Delete All Messages</button>
+            <div class="info-text">Remove all messages from the chat.</div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrRlP5XEIuyegP2_3CpD0RpJhk8GATej0",
+            authDomain: "chips-chatroom.firebaseapp.com",
+            projectId: "chips-chatroom",
+            storageBucket: "chips-chatroom.appspot.com",
+            messagingSenderId: "334241418918",
+            appId: "1:334241418918:web:ca6e37ed8f54bd49ceee67",
+            measurementId: "G-NKCQLZ9LFF"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         const createUserBtn = document.getElementById('create-user-btn');
         const kickUserInput = document.getElementById('kick-user-input');
         const kickUserBtn = document.getElementById('kick-user-btn');
@@ -217,4 +473,3 @@
 </body>
 
 </html>
-
