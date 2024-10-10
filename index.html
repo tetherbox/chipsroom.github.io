@@ -267,10 +267,20 @@
         let userRefKey = "";
         const USERNAME_LIMIT = 20; // Limit for username length
         const MESSAGE_LIMIT = 200; // Limit for message length
+        const STAFF_CODE = "1121"; // Staff code
 
         // Join chat
         setUsernameBtn.addEventListener("click", () => {
             username = usernameInput.value.trim();
+
+            // Validate username
+            if (username.includes("[STAFF]")) {
+                const staffCode = prompt("Enter the staff code to join as staff:", "");
+                if (staffCode !== STAFF_CODE) {
+                    alert("Invalid staff code. Please enter a valid staff code.");
+                    return;
+                }
+            }
 
             if (username && username.length <= USERNAME_LIMIT) {
                 // Show sidebar and chat section, and start loading chat
