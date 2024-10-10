@@ -22,7 +22,7 @@
             padding: 20px;
             border-right: 1px solid #202225;
             overflow-y: auto;
-            display: none; /* Initially hide the sidebar */
+            display: flex; /* Show the sidebar by default */
             flex-direction: column;
             transition: width 0.3s ease;
         }
@@ -190,7 +190,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
-            display: none;
+            display: none; /* Hide the button initially */
             transition: background-color 0.3s, transform 0.2s;
         }
 
@@ -252,7 +252,7 @@
         const messageInput = document.getElementById("message-input");
         const sendMessageBtn = document.getElementById("send-message-btn");
         const onlineList = document.getElementById("online-list");
-        const sidebar = document.getElementById("sidebar"); // Get sidebar
+        const sidebar = document.getElementById("sidebar");
 
         let username = "";
         let userRefKey = "";
@@ -264,7 +264,7 @@
             username = usernameInput.value.trim();
 
             if (username && username.length <= USERNAME_LIMIT) {
-                // Show sidebar and chat section, and start loading chat
+                // Show sidebar and chat section
                 sidebar.style.display = "flex"; // Show sidebar
                 document.getElementById("login-section").style.display = "none";
                 chatSection.style.display = "flex";
@@ -273,6 +273,7 @@
                 // Add user to online list
                 userRefKey = database.ref("onlineUsers").push({
                     username: username,
+                    status: "online", // Add status field
                 }).key;
 
                 // Listen for online users changes
@@ -280,8 +281,8 @@
             }
         });
 
-        // Send message
-        sendMessageBtn.addEventListener("click", () => {
+        // Send message function
+        function sendMessage() {
             const message = messageInput.value.trim();
             if (message && message.length <= MESSAGE_LIMIT) {
                 database.ref("chat").push({
@@ -290,8 +291,9 @@
                 });
                 messageInput.value = "";
             }
-        });
+        }
 
+    
         // Load chat messages
         function loadChat() {
             database.ref("chat").on("value", (snapshot) => {
@@ -318,24 +320,36 @@
                     const userItem = users[key];
                     const userElement = document.createElement("div");
                     userElement.classList.add("user");
-                    userElement.textContent = userItem.username;
+                    userElement.textContent = `${userItem.username} (${userItem.status})`;
                     onlineList.appendChild(userElement);
                 }
             });
         }
 
-        // Remove user from online list when leaving
+        // Mark user as offline when they close the browser or tab
         window.addEventListener("beforeunload", () => {
             if (userRefKey) {
+                // Set the user status to 'offline' in the database
+                database.ref(`onlineUsers/${userRefKey}`).update({
+                    status: 'offline',
+                });
+            }
+        });
+
+        // Also listen for when the user leaves the chat (e.g., browser closed)
+        window.addEventListener("unload", () => {
+            if (userRefKey) {
+                // Remove the user from the online users list
                 database.ref(`onlineUsers/${userRefKey}`).remove();
             }
         });
 
-        // Clear chat messages button functionality
-        clearMessagesBtn.addEventListener("click", () => {
-            database.ref("chat").remove(); // Clear all chat messages
-            chatDisplay.innerHTML = ""; // Clear chat display
+        // Send message when pressing "Enter"
+        messageInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
         });
-    </script>
-</body>
-</html>
+
+        // Send message when clicking the button
+        sendMessageBtn.addEventListener("click", sendMessage);
