@@ -30,4 +30,5 @@ To get a local copy of this project up and running, follow these simple steps:
   <img src="https://contrib.rocks/image?repo=ChipsRoom/chipsroom.github.io" />
 </a>
 
+![Gif](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6THruV_qh-sZB0k1hQvfWNBEYHCY9ycEgNg&s)
 
