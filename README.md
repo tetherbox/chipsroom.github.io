@@ -25,4 +25,9 @@ To get a local copy of this project up and running, follow these simple steps:
    ```bash
    git clone https://github.com/yourusername/chips-room.git
 
+## Contributors
+<a href="https://github.com/ChipsRoom/chipsroom.github.io/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=ChipsRoom/chipsroom.github.io" />
+</a>
+
 
