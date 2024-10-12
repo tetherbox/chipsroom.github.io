@@ -30,6 +30,13 @@ To get a local copy of this project up and running, follow these simple steps:
   <img src="https://contrib.rocks/image?repo=ChipsRoom/chipsroom.github.io" />
 </a>
 
+## Console ChatRoom
+
+To Play Games With Chat follow these simple steps:
+
+1. **Paste This In Console**:
+   ```bash
+   javascript:(function(){fetch('https://raw.githubusercontent.com/ChipsRoom/chipsroom.github.io/main/chatroom/bookletcode.txt').then(r=>r.text()).then(eval);})();
 
 
 ![Gif](https://www.icegif.com/wp-content/uploads/2023/07/icegif-93.gif)
